@@ -8,7 +8,8 @@ env = suite.make(
     env_name="Lift",
     robots="Panda",  
     has_renderer=True,
-    render_camera="birdview",
+    has_offscreen_renderer=False,
+    use_camera_obs=False,
 )
 
 # reset the environment
