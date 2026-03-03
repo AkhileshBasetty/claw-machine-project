@@ -109,10 +109,12 @@ class Policy(object):
         if self.mode != "joystick":
             return
 
-        # Map screen coordinates to a square region around the cube in the table plane.
+        # Map screen coordinates to a square region around the CENTER of the table
+        # in the table plane, independent of the cube position.
         # Swap axes so that moving your hand left/right moves the arm left/right
         # in the rendered view (instead of up/down).
-        x_center, y_center = cube_pos[0], cube_pos[1]
+        # In the Lift environment, the table center is at the world origin in x / y.
+        x_center, y_center = 0.0, 0.0
         # Invert vertical mapping so moving hand up moves arm "back"
         x = x_center + (v - 0.5) * 2.0 * xy_range
         y = y_center + (u - 0.5) * 2.0 * xy_range
