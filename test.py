@@ -5,17 +5,16 @@ from policies import *
 
 # create environment instance
 env = suite.make(
-    env_name="Stack", # replace with other tasks "NutAssembly" and "Door"
+    env_name="Lift",
     robots="Panda",  
     has_renderer=True,
-    has_offscreen_renderer=False,
-    use_camera_obs=False,
+    render_camera="birdview",
 )
 
 # reset the environment
 for _ in range(5):
     obs = env.reset()
-    policy = StackPolicy(obs)
+    policy = Policy(obs)
     
     while True:
         action = policy.get_action(obs)
