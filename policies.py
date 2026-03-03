@@ -12,10 +12,10 @@ class Policy(object):
         self.fixed_z = max(cube_pos[2] + 0.15, eef_pos[2])
 
         self.target = np.array([cube_pos[0], cube_pos[1], self.fixed_z])
-        self.pid = PID(kp=1.0, ki=0.0, kd=0.0, target=self.target)
+        self.pid = PID(kp=5.0, ki=0.0, kd=0.0, target=self.target)
 
-        # Gripper: positive -> open, negative -> close (robosuite convention)
-        self.gripper_command = 1.0
+        # Gripper: negative -> open, positive -> close (robosuite convention)
+        self.gripper_command = -1.0
 
         # Track last hand state to detect "closing" gesture edges
         self.last_is_open = True
@@ -28,6 +28,11 @@ class Policy(object):
         # "pickup_done"    -> hold pose; game logic checks success and ends
         self.mode = "joystick"
         self.pickup_counter = 0
+
+        # XY position at which the pickup sequence starts (where the user aimed)
+        self.pickup_xy = self.target[:2].copy()
+        # Z hover position when pickup starts; we lift back to this
+        self.pickup_hover_z = self.target[2]
 
         # Store cube height at initialization to compare later
         self.initial_cube_z = cube_pos[2]
@@ -42,11 +47,10 @@ class Policy(object):
 
         # Update state machine targets for pickup sequence
         if self.mode == "pickup_descend":
-            # Open gripper and move down to just above the cube
-            self.gripper_command = 1.0
-            self.target = np.array(
-                [cube_pos[0], cube_pos[1], cube_pos[2] + 0.015]
-            )
+            # Open gripper and move straight down (keep the XY where the user stopped)
+            self.gripper_command = -1.0
+            lower_z = cube_pos[2] + 0.015
+            self.target = np.array([self.pickup_xy[0], self.pickup_xy[1], lower_z])
             self.pid.target = self.target
             if np.linalg.norm(current_pos - self.target) < 0.01:
                 self.mode = "pickup_close"
@@ -54,10 +58,9 @@ class Policy(object):
 
         elif self.mode == "pickup_close":
             # Close gripper for a short duration while staying at the contact point
-            self.gripper_command = -1.0
-            self.target = np.array(
-                [cube_pos[0], cube_pos[1], cube_pos[2] + 0.015]
-            )
+            self.gripper_command = 1.0
+            lower_z = cube_pos[2] + 0.015
+            self.target = np.array([self.pickup_xy[0], self.pickup_xy[1], lower_z])
             self.pid.target = self.target
             self.pickup_counter += 1
             if self.pickup_counter > 10:
@@ -66,9 +69,10 @@ class Policy(object):
 
         elif self.mode == "pickup_lift":
             # Lift the cube up while keeping the gripper closed
-            self.gripper_command = -1.0
-            lift_z = max(self.fixed_z, cube_pos[2] + 0.15)
-            self.target = np.array([cube_pos[0], cube_pos[1], lift_z])
+            self.gripper_command = 1.0
+            # Lift back to the hover height we had when pickup started
+            lift_z = self.pickup_hover_z
+            self.target = np.array([self.pickup_xy[0], self.pickup_xy[1], lift_z])
             self.pid.target = self.target
             if np.linalg.norm(current_pos - self.target) < 0.02:
                 self.mode = "pickup_done"
@@ -119,6 +123,9 @@ class Policy(object):
         else:
             # Detect a rising edge of "fist" (open -> closed) to start the grab.
             if self.last_is_open:
+                # Lock in the current joystick XY and hover Z as the pickup pose
+                self.pickup_xy = self.target[:2].copy()
+                self.pickup_hover_z = self.target[2]
                 self.mode = "pickup_descend"
 
         self.last_is_open = is_open
