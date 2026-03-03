@@ -4,18 +4,21 @@ from pid import PID
 class Policy(object):
     
     def __init__(self, obs):
-        # Initial target: directly above the cube at a fixed z-height
+        # Initial target: centered in the middle of the table at a fixed z-height,
+        # regardless of where the cube is.
         cube_pos = obs["cube_pos"]
         eef_pos = obs["robot0_eef_pos"].copy()
 
-        # Keep a fixed z for "joystick" control; start above current eef or cube
-        self.fixed_z = max(cube_pos[2] + 0.15, eef_pos[2])
+        # Keep a fixed z for "joystick" control; start at current eef z (not tied to cube)
+        self.fixed_z = eef_pos[2]
 
-        self.target = np.array([cube_pos[0], cube_pos[1], self.fixed_z])
+        # Start in the middle of the table (global origin in Lift env)
+        center_xy = np.array([0.0, 0.0])
+        self.target = np.array([center_xy[0], center_xy[1], self.fixed_z])
         self.pid = PID(kp=5.0, ki=0.0, kd=0.0, target=self.target)
 
         # Gripper: negative -> open, positive -> close (robosuite convention)
-        self.gripper_command = -1.0
+        self.gripper_command = 1.0
 
         # Track last hand state to detect "closing" gesture edges
         self.last_is_open = True
@@ -119,7 +122,7 @@ class Policy(object):
             self.fixed_z = max(self.fixed_z, cube_pos[2] + 0.15)
             self.target = np.array([x, y, self.fixed_z])
             self.pid.target = self.target
-            self.gripper_command = 1.0
+            self.gripper_command = -1.0
         else:
             # Detect a rising edge of "fist" (open -> closed) to start the grab.
             if self.last_is_open:

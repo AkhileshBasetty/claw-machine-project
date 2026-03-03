@@ -2,6 +2,7 @@ import cv2
 import mediapipe as mp
 import numpy as np
 import robosuite as suite
+from robosuite.utils.placement_samplers import UniformRandomSampler
 
 from mediapipe.tasks import python as mp_python
 from mediapipe.tasks.python import vision
@@ -17,12 +18,27 @@ def run_claw_game():
     - Open hand: move end-effector in x/y at a fixed z (claw-machine joystick).
     - Close hand (fist): lower and close gripper to attempt a grasp.
     """
-    # Set up robosuite environment
+    # Define a placement sampler that keeps the cube on the table,
+    # but randomizes its x / y position within the table area.
+    cube_sampler = UniformRandomSampler(
+        name="CubeSampler",
+        mujoco_objects=None,  # the env will attach the cube object internally
+        x_range=[-0.15, 0.15],
+        y_range=[-0.15, 0.15],
+        rotation=None,
+        ensure_object_boundary_in_range=False,
+        ensure_valid_placement=True,
+        reference_pos=np.array((0.0, 0.0, 0.8)),  # table center / height from Lift env
+        z_offset=0.01,
+    )
+
+    # Set up robosuite environment with randomized cube placement
     env = suite.make(
         env_name="Lift",
         robots="Panda",
         has_renderer=True,
         render_camera="frontview",
+        placement_initializer=cube_sampler,
     )
 
     obs = env.reset()
