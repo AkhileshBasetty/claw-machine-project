@@ -10,7 +10,7 @@ class Policy(object):
         eef_pos = obs["robot0_eef_pos"].copy()
 
         # Keep a fixed z for "joystick" control; start at current eef z (not tied to cube)
-        self.fixed_z = eef_pos[2]
+        self.fixed_z = 0.9
 
         # Start in the middle of the table (global origin in Lift env)
         center_xy = np.array([0.0, 0.0])
@@ -121,7 +121,7 @@ class Policy(object):
 
         if is_open:
             # Joystick mode: move in x/y, keep a fixed z and open gripper.
-            self.fixed_z = max(self.fixed_z, cube_pos[2] + 0.15)
+            # self.fixed_z = max(self.fixed_z, cube_pos[2] + 0.15)
             self.target = np.array([x, y, self.fixed_z])
             self.pid.target = self.target
             self.gripper_command = -1.0
