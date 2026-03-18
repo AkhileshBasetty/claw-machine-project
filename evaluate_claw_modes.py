@@ -34,9 +34,14 @@ if len(sys.argv) == 3 and sys.argv[1] == "--run-game":
  
 def run_one_game_subprocess(control_type):
     """
-    Spawn a fresh subprocess to run a single game.
-    Returns True (win), False (loss), or None (quit).
-    The subprocess fully releases all GPU/camera/MuJoCo resources on exit.
+    [Short Description]: Spawns a fresh subprocess to run a single claw game and returns the outcome.
+    [AI Declaration]: Generated using Claude with the prompt: "fix computer freezing after running evaluate_claw_modes.py"
+    Args:
+        control_type (str): The control mode for the game, either "hand" or "keyboard".
+    Returns:
+        bool or None: True if the player won, False if the player lost, None if the player quit or the subprocess crashed.
+    Notes:
+        Each game runs in its own subprocess so GPU, camera, and MuJoCo memory is fully released between games.
     """
     result = subprocess.run(
         [sys.executable, __file__, "--run-game", control_type],

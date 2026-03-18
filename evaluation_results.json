@@ -61,5 +61,26 @@
       "hand_better": false,
       "keyboard_better": true
     }
+  },
+  {
+    "user": "Boyuan",
+    "date": "2026-03-17T22:48:53.383549",
+    "keyboard": {
+      "wins": 0,
+      "games": 5,
+      "accuracy_percent": 0.0,
+      "quits": 1
+    },
+    "hand_tracking": {
+      "wins": 1,
+      "games": 5,
+      "accuracy_percent": 20.0,
+      "quits": 0
+    },
+    "comparison": {
+      "accuracy_diff_percent": 20.0,
+      "hand_better": true,
+      "keyboard_better": false
+    }
   }
 ]
