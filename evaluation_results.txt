@@ -1,0 +1,21 @@
+
+------------------------------------------------------------
+User: Jiali  |  Date: 2026-03-17T18:07:14.830415
+  Keyboard:      3/5 wins -> 60.0% accuracy
+  Hand tracking: 2/5 wins -> 40.0% accuracy
+  Difference:    Hand vs keyboard = -20.0%
+------------------------------------------------------------
+
+------------------------------------------------------------
+User: j  |  Date: 2026-03-17T18:19:28.042332
+  Keyboard:      0/5 wins -> 0.0% accuracy
+  Hand tracking: 0/5 wins -> 0.0% accuracy
+  Difference:    Hand vs keyboard = +0.0%
+------------------------------------------------------------
+
+------------------------------------------------------------
+User: yan  |  Date: 2026-03-17T21:53:20.618833
+  Keyboard:      2/5 wins -> 40.0% accuracy
+  Hand tracking: 1/5 wins -> 20.0% accuracy (1 quit)
+  Difference:    Hand vs keyboard = -20.0%
+------------------------------------------------------------

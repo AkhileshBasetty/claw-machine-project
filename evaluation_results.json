@@ -1,0 +1,65 @@
+[
+  {
+    "user": "Jiali",
+    "date": "2026-03-17T18:07:14.830415",
+    "keyboard": {
+      "wins": 3,
+      "games": 5,
+      "accuracy_percent": 60.0,
+      "quits": 0
+    },
+    "hand_tracking": {
+      "wins": 2,
+      "games": 5,
+      "accuracy_percent": 40.0,
+      "quits": 0
+    },
+    "comparison": {
+      "accuracy_diff_percent": -20.0,
+      "hand_better": false,
+      "keyboard_better": true
+    }
+  },
+  {
+    "user": "j",
+    "date": "2026-03-17T18:19:28.042332",
+    "keyboard": {
+      "wins": 0,
+      "games": 5,
+      "accuracy_percent": 0.0,
+      "quits": 0
+    },
+    "hand_tracking": {
+      "wins": 0,
+      "games": 5,
+      "accuracy_percent": 0.0,
+      "quits": 0
+    },
+    "comparison": {
+      "accuracy_diff_percent": 0.0,
+      "hand_better": false,
+      "keyboard_better": false
+    }
+  },
+  {
+    "user": "yan",
+    "date": "2026-03-17T21:53:20.618833",
+    "keyboard": {
+      "wins": 2,
+      "games": 5,
+      "accuracy_percent": 40.0,
+      "quits": 0
+    },
+    "hand_tracking": {
+      "wins": 1,
+      "games": 5,
+      "accuracy_percent": 20.0,
+      "quits": 1
+    },
+    "comparison": {
+      "accuracy_diff_percent": -20.0,
+      "hand_better": false,
+      "keyboard_better": true
+    }
+  }
+]
