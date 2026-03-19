@@ -3,6 +3,7 @@ import mediapipe as mp
 import numpy as np
 import robosuite as suite
 from robosuite.utils.placement_samplers import UniformRandomSampler
+import time
 
 from mediapipe.tasks import python as mp_python
 from mediapipe.tasks.python import vision
@@ -47,7 +48,6 @@ def run_one_game(control_type="hand"):
     """
     Run a single claw game with either hand tracking or keyboard control.
     Returns True if the cube was lifted (win), False otherwise, None if user quit.
-    Uses the same offscreen sim render + fullscreen OpenCV window; no change to rendering logic.
     """
     env = _make_env()
     obs = env.reset()
@@ -64,6 +64,9 @@ def run_one_game(control_type="hand"):
         if not cap.isOpened():
             env.close()
             raise RuntimeError("Could not open webcam.")
+        # Allow camera to warm up — skips black/frozen first frames
+        for _ in range(5):
+            cap.read()
         mp_base_options = mp_python.BaseOptions(model_asset_path=MODEL_PATH)
         mp_options = vision.HandLandmarkerOptions(
             base_options=mp_base_options,
@@ -74,6 +77,9 @@ def run_one_game(control_type="hand"):
         )
         landmarker = vision.HandLandmarker.create_from_options(mp_options)
 
+    # Destroy any leftover window from a previous game before creating a new one
+    cv2.destroyAllWindows()
+    cv2.waitKey(1)
     cv2.namedWindow(WIN_NAME, cv2.WINDOW_NORMAL)
     cv2.setWindowProperty(WIN_NAME, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
 
@@ -92,7 +98,7 @@ def run_one_game(control_type="hand"):
                 h, w, _ = cam_frame.shape
                 rgb = cv2.cvtColor(cam_frame, cv2.COLOR_BGR2RGB)
                 mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb)
-                timestamp_ms = int(cap.get(cv2.CAP_PROP_POS_MSEC))
+                timestamp_ms = int(time.time() * 1000)
                 det_result = landmarker.detect_for_video(mp_image, timestamp_ms)
                 if det_result.hand_landmarks:
                     landmarks = det_result.hand_landmarks[0]
@@ -136,7 +142,7 @@ def run_one_game(control_type="hand"):
             action = policy.get_action(obs)
             obs, reward, done, info = env.step(action)
 
-            # Render simulation to numpy array (BGR) — same logic as before
+            # Render simulation to numpy array (BGR)
             sim_frame = env.sim.render(
                 camera_name="frontview",
                 height=SIM_HEIGHT,
@@ -175,19 +181,23 @@ def run_one_game(control_type="hand"):
                 cv2.waitKey(3000)
                 break
 
-            key = cv2.waitKey(1) & 0xFF
-            if key == ord("q"):
-                result = None
-                break
             if done:
                 break
+
+            if control_type == "hand":
+                if cv2.waitKey(1) & 0xFF == ord("q"):
+                    result = None
+                    break
+
     finally:
         if cap is not None:
             cap.release()
+            cap = None
         if landmarker is not None:
             landmarker.close()
-        cv2.destroyAllWindows()
+            landmarker = None
         env.close()
+        cv2.destroyAllWindows()
 
     return result
 

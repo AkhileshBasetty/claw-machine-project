@@ -7,21 +7,60 @@ to evaluation_results.txt and evaluation_results.json for analysis.
 
 import json
 import os
+import sys
+import time
+import subprocess
 from datetime import datetime
-
-from claw_game import run_one_game
-
+ 
 RESULTS_TXT = "evaluation_results.txt"
 RESULTS_JSON = "evaluation_results.json"
 GAMES_PER_MODE = 5
-
-
+ 
+# --- Subprocess entry point ---
+# When this script is called with arguments, it runs a single game and exits.
+# The parent process reads the result from the subprocess exit code:
+#   0 = win, 1 = loss, 2 = quit
+if len(sys.argv) == 3 and sys.argv[1] == "--run-game":
+    control_type = sys.argv[2]
+    from claw_game import run_one_game
+    outcome = run_one_game(control_type=control_type)
+    if outcome is True:
+        sys.exit(0)   # win
+    elif outcome is False:
+        sys.exit(1)   # loss
+    else:
+        sys.exit(2)   # quit
+ 
+ 
+def run_one_game_subprocess(control_type):
+    """
+    [Short Description]: Spawns a fresh subprocess to run a single claw game and returns the outcome.
+    [AI Declaration]: Generated using Claude with the prompt: "fix computer freezing after running evaluate_claw_modes.py"
+    Args:
+        control_type (str): The control mode for the game, either "hand" or "keyboard".
+    Returns:
+        bool or None: True if the player won, False if the player lost, None if the player quit or the subprocess crashed.
+    Notes:
+        Each game runs in its own subprocess so GPU, camera, and MuJoCo memory is fully released between games.
+    """
+    result = subprocess.run(
+        [sys.executable, __file__, "--run-game", control_type],
+        # Inherit stdio so the game window and prints work normally
+    )
+    code = result.returncode
+    if code == 0:
+        return True
+    elif code == 1:
+        return False
+    else:
+        return None
+    
 def run_evaluation_round(control_type, num_games):
     """Run num_games games with the given control type. Returns list of results (True=win, False=loss, None=quit)."""
     results = []
     for i in range(num_games):
         print(f"\n--- {control_type.upper()} game {i + 1}/{num_games} ---")
-        outcome = run_one_game(control_type=control_type)
+        outcome = run_one_game_subprocess(control_type)
         results.append(outcome)
         if outcome is True:
             print("  -> Win")
@@ -29,6 +68,7 @@ def run_evaluation_round(control_type, num_games):
             print("  -> Loss")
         else:
             print("  -> Quit (counted as loss for accuracy)")
+        time.sleep(5.0)
     return results
 
 
