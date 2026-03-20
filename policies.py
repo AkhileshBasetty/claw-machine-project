@@ -42,8 +42,12 @@ class Policy(object):
         
     def get_action(self, obs):
         """
-        Compute the low-level action using PID toward the current 3D target.
-        The first 3 entries are Cartesian deltas, last entry is gripper command.
+        [Short Description]: Gets robot action using PID control toward the current target based on the state machine mode.
+        [AI Declaration]: Generated using Claude with the prompt: "implement a state machine with the gripper going down, closing, and lifting that uses PID to move a robot arm to grab and lift a cube"
+        Args:
+            obs (dict): Robosuite observation dictionary containing robot0_eef_pos and cube_pos.
+        Returns:
+            np.ndarray: 7-element action array with 3 Cartesian deltas, 3 rotation deltas (zeros), and gripper command.
         """
         current_pos = obs["robot0_eef_pos"]
         cube_pos = obs["cube_pos"]
@@ -95,13 +99,16 @@ class Policy(object):
 
     def update_from_hand(self, u, v, is_open, obs, xy_range=0.15):
         """
-        Update the PID target and gripper command based on hand position / state.
-
-        - (u, v) are normalized image coordinates in [0, 1].
-        - When the hand is open, the end-effector tracks x/y at a fixed z.
-        - When the hand transitions from open -> closed (fist), we:
-          * start lowering in z toward the cube
-          * close the gripper.
+        [Short Description]: Updates the PID target and gripper command from hand position and open and closed state.
+        [AI Declaration]: Generated using Claude with the prompt: "map hand coordinates to robot xy position and pickup if hand is closed"
+        Args:
+            u (float): Normalized horizontal hand position in [0, 1].
+            v (float): Normalized vertical hand position in [0, 1].
+            is_open (bool): True if hand is open, False if closed.
+            obs (dict): Robosuite observation dictionary containing cube_pos.
+            xy_range (float): Half-width of the robot's reachable table region in meters. Defaults to 0.15.
+        Returns:
+            None
         """
         cube_pos = obs["cube_pos"]
 
