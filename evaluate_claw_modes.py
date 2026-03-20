@@ -40,8 +40,6 @@ def run_one_game_subprocess(control_type):
         control_type (str): The control mode for the game, either "hand" or "keyboard".
     Returns:
         bool or None: True if the player won, False if the player lost, None if the player quit or the subprocess crashed.
-    Notes:
-        Each game runs in its own subprocess so GPU, camera, and MuJoCo memory is fully released between games.
     """
     result = subprocess.run(
         [sys.executable, __file__, "--run-game", control_type],
@@ -56,7 +54,15 @@ def run_one_game_subprocess(control_type):
         return None
     
 def run_evaluation_round(control_type, num_games):
-    """Run num_games games with the given control type. Returns list of results (True=win, False=loss, None=quit)."""
+    """
+    [Short Description]: Runs a fixed number of games for a given control type and returns the list of outcomes.
+    [AI Declaration]: Generated using Claude with the prompt: "run the claw game and determine whether the player wins or loses"
+    Args:
+        control_type (str): The control mode, either "hand" or "keyboard".
+        num_games (int): Number of games to run.
+    Returns:
+        list: List of outcomes where True=win, False=loss, None=quit.
+    """
     results = []
     for i in range(num_games):
         print(f"\n--- {control_type.upper()} game {i + 1}/{num_games} ---")
@@ -73,7 +79,14 @@ def run_evaluation_round(control_type, num_games):
 
 
 def compute_metrics(results):
-    """From a list of outcomes (True/False/None), return wins, completed, accuracy (0-100), quit count."""
+    """
+    [Short Description]: Calculates win count, game count, accuracy percentage, and quit count from a list of outcomes.
+    [AI Declaration]: Generated using Claude with the prompt: "calculate wins, total games, win accuracy as a percentage, and quit count"
+    Args:
+        results (list): List of outcomes where True=win, False=loss, None=quit.
+    Returns:
+        tuple: (wins, n, accuracy, quits) where accuracy is wins/n as a percentage and quits count as losses.
+    """
     completed = [r for r in results if r is not None]
     quits = sum(1 for r in results if r is None)
     wins = sum(1 for r in results if r is True)
@@ -84,6 +97,14 @@ def compute_metrics(results):
 
 
 def main():
+    """
+    [Short Description]: Entry point that runs the full evaluation, prints a summary, and logs results to txt and json files.
+    [AI Declaration]: Generated using Claude with the prompt: "run 5 keyboard then 5 hand tracking claw games, compare accuracy, and store the results"
+    Args:
+        None
+    Returns:
+        None
+    """
     print("Claw machine evaluation: keyboard vs hand tracking")
     print("You will play 5 games with KEYBOARD (arrow keys + space), then 5 with HAND (webcam).")
     user_name = input("Enter your name or id (for logging): ").strip() or "anonymous"

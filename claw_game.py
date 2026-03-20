@@ -46,9 +46,14 @@ def _make_env():
 
 def run_one_game(control_type="hand"):
     """
-    Run a single claw game with either hand tracking or keyboard control.
-    Returns True if the cube was lifted (win), False otherwise, None if user quit.
+    [Short Description]: Runs a single claw game and returns whether the cube was lifted.
+    [AI Declaration]: Generated using Claude with the prompt: "runclaw game with either hand tracking or keyboard control and return result"
+    Args:
+        control_type (str): Either "hand" for webcam hand tracking or "keyboard" for WASD controls.
+    Returns:
+        bool or None: True if the cube was lifted, False if not lifted, None if the user quit.
     """
+
     env = _make_env()
     obs = env.reset()
     policy = Policy(obs)
@@ -203,7 +208,6 @@ def run_one_game(control_type="hand"):
 
 
 def run_claw_game():
-    """Run a single hand-tracking claw game (same as before)."""
     run_one_game(control_type="hand")
 
 

@@ -31,6 +31,15 @@ RING_TIP      = 16
 PINKY_TIP     = 20
 
 def get_palm_center_and_open_state(landmarks):
+    """
+    [Short Description]: Calculates the palm center position and determines whether the hand is open or closed.
+    [AI Declaration]: Generated using Claude with the prompt: "get the palm center and detect open and closed state using mediapipe"
+    Args:
+        landmarks (list): List of hand landmarks from MediaPipe's HandLandmarker, each with x and y attributes normalized to [0, 1].
+    Returns:
+        tuple: A tuple of ((u, v), is_open) where (u, v) are the normalized palm center
+               coordinates and is_open is True if the hand is open, False if closed.
+    """
     palm_ids = [WRIST, THUMB_CMC, INDEX_MCP, MIDDLE_MCP, RING_MCP, PINKY_MCP]
     xs = [landmarks[i].x for i in palm_ids]
     ys = [landmarks[i].y for i in palm_ids]
@@ -44,13 +53,29 @@ def get_palm_center_and_open_state(landmarks):
     return (u, v), is_open
 
 def draw_landmarks_on_frame(frame, hand_landmarks):
-    """Draw landmarks using the new API's landmark format."""
+    """
+    [Short Description]: Draws all hand landmarks as circles onto a video frame.
+    [AI Declaration]: Generated using Claude with the prompt: "draw mediapipe hand landmarks"
+    Args:
+        frame (np.ndarray): BGR image frame to draw on, modified in place.
+        hand_landmarks (list): List of landmarks from MediaPipe's HandLandmarker, each with x and y attributes normalized to [0, 1].
+    Returns:
+        None
+    """
     h, w, _ = frame.shape
     for lm in hand_landmarks:
         cx, cy = int(lm.x * w), int(lm.y * h)
         cv2.circle(frame, (cx, cy), 4, (255, 255, 255), -1)
 
 def main():
+    """
+    [Short Description]: Runs a live webcam hand tracking loop, displaying open/closed state and palm position.
+    [AI Declaration]: Generated using Claude with the prompt: "write a script that opens a webcam, runs mediapipe hand landmarker, and shows the open and closed state and palm center coordinates"
+    Args:
+        None
+    Returns:
+        None
+    """
     base_options = mp_python.BaseOptions(model_asset_path=MODEL_PATH)
     options = vision.HandLandmarkerOptions(
         base_options=base_options,
