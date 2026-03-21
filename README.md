@@ -4,7 +4,7 @@
 
 - Akhilesh Basetty
 - Jiali Chen
-- Omar Rhemeni
+- Omar Lejmi
 
 ## Project Overview
 
